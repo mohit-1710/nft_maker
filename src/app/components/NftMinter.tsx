@@ -64,52 +64,74 @@ const NftMinter = () => {
     };
 
     return (
-        <div>
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">NFT Name</label>
-                <input
-                    type="text"
-                    value={nftName}
-                    onChange={(e) => setNftName(e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-            </div>
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">NFT Description</label>
-                <input
-                    type="text"
-                    value={nftDescription}
-                    onChange={(e) => setNftDescription(e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-            </div>
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">NFT Image</label>
-                <Dropzone onUpload={setNftImageUrl} />
-                {nftImageUrl && <p className="mt-2 text-sm text-gray-500">Image uploaded: <a href={nftImageUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500">{nftImageUrl}</a></p>}
-            </div>
-            <button
-                onClick={handleMint}
-                disabled={isLoading || !wallet.publicKey || !nftImageUrl}
-                className="w-full rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:bg-gray-400"
-            >
-                {isLoading ? 'Minting...' : 'Mint NFT'}
-            </button>
-            {signature && (
-                <div className="mt-4 text-green-500">
-                    <p>Mint Successful!</p>
+       <div className="bg-gray-900/60 backdrop-blur-md text-gray-100 p-6 rounded-xl border border-gray-700">
+    <div className="space-y-6">
+
+        <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-300">NFT Name</label>
+            <input
+                type="text"
+                value={nftName}
+                onChange={(e) => setNftName(e.target.value)}
+                className="w-full rounded-lg bg-gray-800/60 backdrop-blur border border-gray-700 px-4 py-3 text-gray-100 focus:border-indigo-500 focus:ring-indigo-500"
+            />
+        </div>
+
+        <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-300">NFT Description</label>
+            <input
+                type="text"
+                value={nftDescription}
+                onChange={(e) => setNftDescription(e.target.value)}
+                className="w-full rounded-lg bg-gray-800/60 backdrop-blur border border-gray-700 px-4 py-3 text-gray-100 focus:border-indigo-500 focus:ring-indigo-500"
+            />
+        </div>
+
+        <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-300">NFT Image</label>
+            <Dropzone onUpload={setNftImageUrl} />
+
+            {nftImageUrl && (
+                <p className="text-sm text-gray-400 mt-1">
+                    Image uploaded:{" "}
                     <a
-                        href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`}
+                        href={nftImageUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-500 underline"
+                        className="text-blue-400 underline"
                     >
-                        View on Solana Explorer
+                        {nftImageUrl}
                     </a>
-                </div>
+                </p>
             )}
-            {error && <p className="mt-4 text-red-500">{error}</p>}
         </div>
+
+        <button
+            onClick={handleMint}
+            disabled={isLoading || !wallet.publicKey || !nftImageUrl}
+            className="w-full rounded-lg bg-indigo-600 px-5 py-3 text-white hover:bg-indigo-700 disabled:bg-gray-600"
+        >
+            {isLoading ? "Minting..." : "Mint NFT"}
+        </button>
+
+        {signature && (
+            <div className="mt-2 text-green-400">
+                <p>Mint Successful!</p>
+                <a
+                    href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 underline"
+                >
+                    View on Solana Explorer
+                </a>
+            </div>
+        )}
+
+        {error && <p className="text-red-400 mt-2">{error}</p>}
+    </div>
+</div>
+
     );
 };
 
