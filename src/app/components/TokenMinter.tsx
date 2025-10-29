@@ -281,70 +281,94 @@ const TokenMinter = () => {
     };
 
     return (
-        <div>
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Token Name</label>
-                <input
-                    type="text"
-                    value={tokenName}
-                    onChange={(e) => setTokenName(e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-            </div>
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Token Symbol</label>
-                <input
-                    type="text"
-                    value={tokenSymbol}
-                    onChange={(e) => setTokenSymbol(e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-            </div>
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Decimals</label>
-                <input
-                    type="number"
-                    value={decimals}
-                    onChange={(e) => setDecimals(Number(e.target.value))}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-            </div>
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Initial Supply</label>
-                <input
-                    type="number"
-                    value={initialSupply}
-                    onChange={(e) => setInitialSupply(Number(e.target.value))}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-            </div>
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Token Image</label>
-                <Dropzone onUpload={setTokenImageUrl} />
-                {tokenImageUrl && <p className="mt-2 text-sm text-gray-500">Image uploaded: <a href={tokenImageUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500">{tokenImageUrl}</a></p>}
-            </div>
-            <button
-                onClick={handleMint}
-                disabled={isLoading || !wallet.publicKey || !tokenImageUrl}
-                className="w-full rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:bg-gray-400"
-            >
-                {isLoading ? 'Minting...' : 'Mint Token'}
-            </button>
-            {signature && (
-                <div className="mt-4 text-green-500">
-                    <p>Mint Successful!</p>
+<div className="bg-gray-900/60 backdrop-blur-md text-gray-100 p-6 rounded-xl border border-gray-700">
+    <div className="space-y-6">
+
+        <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-300">Token Name</label>
+            <input
+                type="text"
+                value={tokenName}
+                onChange={(e) => setTokenName(e.target.value)}
+                className="w-full rounded-lg bg-gray-800/60 backdrop-blur border border-gray-700 px-4 py-3 text-gray-100 focus:border-indigo-500 focus:ring-indigo-500"
+            />
+        </div>
+
+        <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-300">Token Symbol</label>
+            <input
+                type="text"
+                value={tokenSymbol}
+                onChange={(e) => setTokenSymbol(e.target.value)}
+                className="w-full rounded-lg bg-gray-800/60 backdrop-blur border border-gray-700 px-4 py-3 text-gray-100 focus:border-indigo-500 focus:ring-indigo-500"
+            />
+        </div>
+
+        <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-300">Decimals</label>
+            <input
+                type="number"
+                value={decimals}
+                onChange={(e) => setDecimals(Number(e.target.value))}
+                className="w-full rounded-lg bg-gray-800/60 backdrop-blur border border-gray-700 px-4 py-3 text-gray-100 focus:border-indigo-500 focus:ring-indigo-500"
+            />
+        </div>
+
+        <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-300">Initial Supply</label>
+            <input
+                type="number"
+                value={initialSupply}
+                onChange={(e) => setInitialSupply(Number(e.target.value))}
+                className="w-full rounded-lg bg-gray-800/60 backdrop-blur border border-gray-700 px-4 py-3 text-gray-100 focus:border-indigo-500 focus:ring-indigo-500"
+            />
+        </div>
+
+        <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-300">Token Image</label>
+            <Dropzone onUpload={setTokenImageUrl} />
+            {tokenImageUrl && (
+                <p className="text-sm text-gray-400 mt-1">
+                    Image uploaded:{" "}
                     <a
-                        href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`}
+                        href={tokenImageUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-500 underline"
+                        className="text-blue-400 underline"
                     >
-                        View on Solana Explorer
+                        {tokenImageUrl}
                     </a>
-                </div>
+                </p>
             )}
-            {error && <p className="mt-4 text-red-500">{error}</p>}
         </div>
+
+        <button
+            onClick={handleMint}
+            disabled={isLoading || !wallet.publicKey || !tokenImageUrl}
+            className="w-full rounded-lg bg-indigo-600 px-5 py-3 text-white hover:bg-indigo-700 disabled:bg-gray-600"
+        >
+            {isLoading ? "Minting..." : "Mint Token"}
+        </button>
+
+        {signature && (
+            <div className="mt-2 text-green-400">
+                <p>Mint Successful!</p>
+                <a
+                    href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 underline"
+                >
+                    View on Solana Explorer
+                </a>
+            </div>
+        )}
+
+        {error && <p className="text-red-400 mt-2">{error}</p>}
+    </div>
+</div>
+
+
     );
 };
 
