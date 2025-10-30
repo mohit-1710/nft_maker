@@ -35,8 +35,14 @@ export async function POST(req: NextRequest) {
             }
         });
         return NextResponse.json({ ipfsHash: res.data.IpfsHash }, { status: 200 });
-    } catch (error) {
-        console.error('Pinata API Error:', error.response ? error.response.data : error.message);
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            console.error('Pinata API Error:', error.response ? error.response.data : error.message);
+        } else if (error instanceof Error) {
+            console.error('Pinata API Error:', error.message);
+        } else {
+            console.error('Pinata API Error: An unknown error occurred');
+        }
         return NextResponse.json({ error: 'Error uploading to Pinata' }, { status: 500 });
     }
 }

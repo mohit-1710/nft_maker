@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { useSearchParams } from 'next/navigation';
 import AppBar from '../../components/AppBar';
 import NftMinter from '../../components/NftMinter';
 
@@ -10,6 +11,8 @@ export default function NftMintPage() {
     const [balance, setBalance] = useState<number>(0);
     const { connection } = useConnection();
     const { publicKey } = useWallet();
+    const searchParams = useSearchParams();
+    const imageUrl = searchParams.get('imageUrl');
 
     useEffect(() => {
         if (publicKey) {
@@ -73,7 +76,7 @@ export default function NftMintPage() {
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-lg blur opacity-20"></div>
 
                     {/* Card */}
-                        <NftMinter />
+                        <NftMinter preloadedImageUrl={imageUrl} />
 
                 </div>
             </div>

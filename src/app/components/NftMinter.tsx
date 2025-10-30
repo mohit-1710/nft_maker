@@ -9,12 +9,12 @@ import { generateSigner, percentAmount } from '@metaplex-foundation/umi';
 import axios from 'axios';
 import Dropzone from './Dropzone';
 
-const NftMinter = () => {
+const NftMinter = ({ preloadedImageUrl }: { preloadedImageUrl?: string | null }) => {
     const { connection } = useConnection();
     const wallet = useWallet();
     const [nftName, setNftName] = useState('');
     const [nftDescription, setNftDescription] = useState('');
-    const [nftImageUrl, setNftImageUrl] = useState<string | null>(null);
+    const [nftImageUrl, setNftImageUrl] = useState<string | null>(preloadedImageUrl || null);
     const [isLoading, setIsLoading] = useState(false);
     const [signature, setSignature] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);

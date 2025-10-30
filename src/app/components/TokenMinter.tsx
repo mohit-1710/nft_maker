@@ -118,6 +118,9 @@ const TokenMinter = () => {
                 publicKey: wallet.publicKey,
                 signTransaction: async (tx: Transaction) => {
                     console.log('Signing transaction...');
+                    if (!wallet.signTransaction) {
+                        throw new Error('Wallet does not support transaction signing.');
+                    }
                     return await wallet.signTransaction(tx);
                 },
                 signAllTransactions: async (txs: Transaction[]) => {
@@ -133,12 +136,18 @@ const TokenMinter = () => {
 
             // Helper function to send transactions with wallet adapter
             const sendTransaction = async (transaction: Transaction): Promise<string> => {
+                if (!wallet.publicKey) {
+                    throw new Error('Wallet not connected or public key not available.');
+                }
                 const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
                 transaction.recentBlockhash = blockhash;
                 transaction.feePayer = wallet.publicKey;
                 
                 // Sign with wallet adapter
                 console.log('Requesting wallet signature...');
+                if (!wallet.signTransaction) {
+                    throw new Error('Wallet does not support transaction signing.');
+                }
                 const signed = await wallet.signTransaction(transaction);
                 
                 // Send transaction
