@@ -36,13 +36,25 @@ export const useNFTMint = () => {
       const res = await axios.post("/api/upload", formData, { 
         headers: { 'Content-Type': 'multipart/form-data' } 
       });
+      
+      if (!res.data.ipfsHash) {
+        throw new Error(res.data.error || 'Failed to upload image to IPFS');
+      }
+      
       const imageUrl = `https://gateway.pinata.cloud/ipfs/${res.data.ipfsHash}`;
 
       // Redirect to the mint page with the image URL
       window.location.href = `/mint/nft?imageUrl=${encodeURIComponent(imageUrl)}`;
 
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred while minting');
+    } catch (err: any) {
+      console.error('Mint error:', err);
+      if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An error occurred while minting');
+      }
     } finally {
       setIsLoading(false);
     }

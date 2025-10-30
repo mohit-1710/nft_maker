@@ -11,6 +11,7 @@ export interface CanvasElement {
   src?: string;
   width?: number;
   height?: number;
+  text?: string;
 }
 
 export interface CanvasState {
@@ -21,6 +22,11 @@ export interface CanvasState {
   isPanning: boolean;
   panOffset: { x: number; y: number };
   startPanPosition: { x: number; y: number };
+  isDragging: boolean;
+  isResizing: boolean;
+  resizeHandle: string | null;
+  dragStart: { x: number; y: number };
+  elementStart: { x1: number; y1: number; x2: number; y2: number } | null;
 }
 
 export interface CanvasSettings {

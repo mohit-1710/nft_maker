@@ -25,27 +25,12 @@ export default function NftMintPage() {
 
     {/* Animated gradient background */}
     <div className="fixed inset-0 bg-gradient-to-br from-purple-950/50 via-black to-cyan-950/50"></div>
-
-    {/* Animated mesh blobs */}
-    <div className="fixed inset-0 opacity-30">
-        <div className="absolute top-0 -left-40 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-        <div className="absolute top-0 -right-40 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-40 left-1/2 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
-    </div>
-
-    {/* Hex pattern overlay */}
-    <div
-        className="fixed inset-0 opacity-5 pointer-events-none"
-        style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='%23ffffff' stroke-width='1'/%3E%3C/svg%3E")`,
-            backgroundSize: "60px 60px",
-        }}
-    ></div>
+    <div className="absolute inset-0 bg-gradient-to-b from-black via-[#1a0b3b] to-[#ae0bef]"></div>
 
     <div className="relative z-10">
         <AppBar />
 
-        <div className="container mx-auto mt-10 flex flex-col items-center justify-center p-4">
+        <div className="container mx-auto mt-10 flex flex-col items-center justify-center p-4 mt-24">
             
             <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
                 Mint NFT

@@ -8,6 +8,7 @@ interface BottomToolbarProps {
   tool: string;
   onToolChange: (tool: string) => void;
   showHint?: boolean;
+  onImageUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const tools: Tool[] = [
@@ -24,8 +25,9 @@ const tools: Tool[] = [
   { id: 'eraser', icon: Eraser, label: 'Eraser', key: '0' },
 ];
 
-export const BottomToolbar: React.FC<BottomToolbarProps> = ({ tool, onToolChange, showHint = true }) => {
+export const BottomToolbar: React.FC<BottomToolbarProps> = ({ tool, onToolChange, showHint = true, onImageUpload }) => {
   const [showShortcutFeedback, setShowShortcutFeedback] = React.useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Keyboard shortcut handler
   useEffect(() => {
@@ -40,7 +42,12 @@ export const BottomToolbar: React.FC<BottomToolbarProps> = ({ tool, onToolChange
       
       if (toolToSelect) {
         e.preventDefault();
-        onToolChange(toolToSelect.id);
+        // If image tool is selected, trigger file input
+        if (toolToSelect.id === 'image' && fileInputRef.current) {
+          fileInputRef.current.click();
+        } else {
+          onToolChange(toolToSelect.id);
+        }
         
         // Show visual feedback
         setShowShortcutFeedback(toolToSelect.label);
@@ -110,7 +117,14 @@ export const BottomToolbar: React.FC<BottomToolbarProps> = ({ tool, onToolChange
             return (
               <button
                 key={t.id}
-                onClick={() => onToolChange(t.id)}
+                onClick={() => {
+                  // If image tool, trigger file input
+                  if (t.id === 'image' && fileInputRef.current) {
+                    fileInputRef.current.click();
+                  } else {
+                    onToolChange(t.id);
+                  }
+                }}
                 className={`${styles.toolButton} relative p-3 rounded-lg group mx-1 ${
                   isActive 
                     ? `${styles.activeTool} text-white` 
@@ -139,6 +153,15 @@ export const BottomToolbar: React.FC<BottomToolbarProps> = ({ tool, onToolChange
           </button>
         </div>
       </div>
+      
+      {/* Hidden file input for image upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={onImageUpload}
+        className="hidden"
+      />
     </div>
   );
 };
