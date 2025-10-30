@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Sidebar } from '@/app/components/canvas/Sidebar';
 import { BottomToolbar } from '@/app/components/canvas/BottomToolbar';
@@ -12,6 +12,7 @@ import { useNFTMint } from '@/hooks/useNFTMint';
 export default function NFTCanvasEditor() {
   const wallet = useWallet();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [focusMode, setFocusMode] = useState(false);
   
   const {
     canvasRef,
@@ -64,6 +65,19 @@ export default function NFTCanvasEditor() {
     console.log('applyFilter called with:', filterType);
   };
 
+  // Keyboard: toggle Focus Mode with "f"
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement)?.tagName === 'INPUT' || (e.target as HTMLElement)?.tagName === 'TEXTAREA') return;
+      if (e.key.toLowerCase() === 'f') {
+        setFocusMode(prev => !prev);
+        if (!focusMode) setIsSidebarOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [focusMode]);
+
   // Handlers for canvas operations
   const handleDownload = () => {
     downloadImage(settings.canvasWidth, settings.canvasHeight, settings.backgroundColor, canvasState.elements);
@@ -82,13 +96,11 @@ export default function NFTCanvasEditor() {
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
-        <div className="fixed inset-0 bg-gradient-to-br from-purple-950/50 via-black to-cyan-950/50"></div>
-        <div className="fixed inset-0 opacity-30">
-            <div className="absolute top-0 -left-40 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-            <div className="absolute top-0 -right-40 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
-            <div className="absolute -bottom-40 left-1/2 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
+        <div className="fixed inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-black via-black to-black"></div>
+          <div className="absolute -top-24 -left-16 w-[30rem] h-[30rem] bg-purple-800/25 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 right-0 w-[26rem] h-[26rem] bg-purple-700/20 rounded-full blur-3xl"></div>
         </div>
-        <div className="fixed inset-0 opacity-5" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='%23ffffff' stroke-width='1'/%3E%3C/svg%3E")` }}></div>
       
       <Sidebar
         isOpen={isSidebarOpen}
@@ -105,8 +117,8 @@ export default function NFTCanvasEditor() {
 
       <main className="relative z-10 p-4 flex flex-col h-screen">
         <CanvasHeader
-          isSidebarOpen={isSidebarOpen}
-          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+          isSidebarOpen={!focusMode && isSidebarOpen}
+          onToggleSidebar={() => { setIsSidebarOpen(!isSidebarOpen); if (!isSidebarOpen) setFocusMode(false); }}
           onDownload={handleDownload}
           onMint={handleMintClick}
           isLoading={isLoading}
@@ -115,7 +127,7 @@ export default function NFTCanvasEditor() {
           error={error}
         />
 
-            <div className="flex-1 flex items-center justify-center">
+            <div className={`flex-1 flex items-center justify-center ${focusMode ? 'pt-2' : ''}`}>
           <Canvas
             canvasRef={canvasRef}
             canvasState={canvasState}
@@ -135,6 +147,7 @@ export default function NFTCanvasEditor() {
       <BottomToolbar
         tool={settings.tool}
         onToolChange={(tool) => updateSettings({ tool })}
+        showHint={!focusMode}
       />
 
       <MintModal

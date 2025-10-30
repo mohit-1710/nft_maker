@@ -12,20 +12,24 @@ const AppBar = () => {
   }, []);
 
   return (
-    <header className="w-full flex justify-between items-center px-10 py-4">
+    <header className="fixed top-4 left-1/2 -translate-x-1/2 z-40 w-[92vw] max-w-6xl">
+      <div className="flex items-center justify-between gap-6 px-6 py-3 rounded-full bg-black/70 border border-white/10 backdrop-blur-xl shadow-2xl">
       {/* Left Side: Platform Name */}
-      <h1 className="text-2xl font-semibold text-white tracking-wide select-none">
-        Solana<span className="text-purple-400">Space</span>
+      <h1 className="text-xl font-semibold text-white tracking-wide select-none">
+        nft<span className="text-purple-400">maker</span>
       </h1>
 
       {/* Right Side: Navigation + Wallet Button */}
-      <div className="flex items-center gap-8">
-        <nav className="flex items-center gap-6">
+      <div className="flex items-center gap-4">
+        <nav className="flex items-center gap-2">
           <Link href="/docs" className="nav-link">
             Docs
           </Link>
           <Link href="/create-nft" className="nav-link">
             Create NFT
+          </Link>
+          <Link href="/mint/token" className="nav-link">
+            Launch Token
           </Link>
         </nav>
 
@@ -33,7 +37,7 @@ const AppBar = () => {
           <WalletMultiButton />
         </div>
       </div>
-
+      </div>
       <style jsx global>{`
         /* Navigation Links */
         .nav-link {
@@ -42,8 +46,8 @@ const AppBar = () => {
           font-weight: 500;
           letter-spacing: 0.5px;
           text-decoration: none;
-          padding: 0.5rem 1rem;
-          border-radius: 0.4rem;
+          padding: 0.55rem 1rem;
+          border-radius: 9999px;
           transition: all 0.25s ease;
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.15);

@@ -7,6 +7,7 @@ import styles from './BottomToolbar.module.css';
 interface BottomToolbarProps {
   tool: string;
   onToolChange: (tool: string) => void;
+  showHint?: boolean;
 }
 
 const tools: Tool[] = [
@@ -23,7 +24,7 @@ const tools: Tool[] = [
   { id: 'eraser', icon: Eraser, label: 'Eraser', key: '0' },
 ];
 
-export const BottomToolbar: React.FC<BottomToolbarProps> = ({ tool, onToolChange }) => {
+export const BottomToolbar: React.FC<BottomToolbarProps> = ({ tool, onToolChange, showHint = true }) => {
   const [showShortcutFeedback, setShowShortcutFeedback] = React.useState<string | null>(null);
 
   // Keyboard shortcut handler
@@ -63,11 +64,13 @@ export const BottomToolbar: React.FC<BottomToolbarProps> = ({ tool, onToolChange
       )}
       
       {/* Hint text */}
-      <div className={`mb-3 text-center ${styles.hintText}`}>
-        <span className="text-xs text-gray-400 bg-gray-900/80 backdrop-blur-sm px-3 py-1 rounded-full">
-          Press <kbd className="px-1 py-0.5 bg-gray-700 rounded text-xs">1-0</kbd> to select tools
-        </span>
-      </div>
+      {showHint && (
+        <div className={`mb-3 text-center ${styles.hintText}`}>
+          <span className="text-xs text-gray-400 bg-gray-900/80 backdrop-blur-sm px-3 py-1 rounded-full">
+            Press <kbd className="px-1 py-0.5 bg-gray-700 rounded text-xs">1-0</kbd> to select tools
+          </span>
+        </div>
+      )}
       
       {/* Main toolbar */}
       <div className={`${styles.toolbar} bg-gray-900/95 backdrop-blur-xl rounded-2xl border border-gray-700/50 shadow-2xl`}>
