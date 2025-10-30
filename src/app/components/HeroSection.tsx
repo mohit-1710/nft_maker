@@ -1,88 +1,112 @@
 import React from "react";
+import AppBar from "./AppBar";
+import Img from "../../../public/c256070a64879df00eb10d3a19fe7c78.jpg";
 
-export default function HeroSection() {
+const HeroSection = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black">
-      {/* Subtle purple gradient accents */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-40 -left-20 w-[38rem] h-[38rem] bg-purple-800/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-56 right-0 w-[34rem] h-[34rem] bg-purple-700/15 rounded-full blur-3xl" />
+    <div className="relative w-full min-h-screen bg-gradient-to-br from-[#0a0f1e] via-[#050810] to-[#0a0f1e] overflow-hidden">
+      <div className="relative max-w-[2560px] mx-auto h-screen flex">
+        {/* Left Section - 60% */}
+        <div className="w-[60%] flex flex-col justify-between p-12 lg:p-16 xl:p-20">
+          {/* Header */}
+          <div className="flex justify-between items-start mb-8">
+            <AppBar />
+          </div>
+
+          {/* Hero Content */}
+          <div className="flex-1 flex flex-col justify-center space-y-8 lg:space-y-12 max-w-3xl">
+            <div className="space-y-2">
+              <h2 className="text-[clamp(2rem,8vw,10rem)] font-black leading-[0.9] tracking-tighter text-white">
+                DESIGN
+              </h2>
+              <h2 className="text-[clamp(2rem,8vw,10rem)] font-black leading-[0.9] tracking-tighter text-white">
+                GENERATE
+              </h2>
+              <h2 className="text-[clamp(2rem,8vw,10rem)] font-black leading-[0.9] tracking-tighter text-[#ae0bef] relative">
+                LAUNCH
+              </h2>
+            </div>
+
+            <p className="text-[#6b7280] text-lg lg:text-xl max-w-xl leading-relaxed">
+              Where wild ideas mint into reality. Design, generate, and launch
+              NFTs — and tokens — on Solana in minutes.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                className="px-8 py-3 rounded-full bg-gradient-to-r from-[#6d28d9] via-[#8b5cf6] to-[#a855f7] hover:from-[#8b5cf6] hover:via-[#a855f7] hover:to-[#c084fc] text-white font-semibold tracking-wide shadow-lg shadow-purple-500/30 border border-purple-400/30 transition-all duration-300 transform hover:scale-105 cursor-pointer hover:shadow-purple-400/50"
+                onClick={() => (window.location.href = "/create-nft")}
+              >
+                Start Creating
+              </button>
+              <button
+                className="px-8 py-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-sm transition transform hover:scale-105 cursor-pointer font-semibold text-white"
+                onClick={() => (window.location.href = "/mint/token")}
+              >
+                Mint Token
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Section - 40% */}
+        <div className="w-[40%] relative overflow-hidden rounded-4xl m-4">
+          {/* Image Background */}
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(./c256070a64879df00eb10d3a19fe7c78.jpg)`,
+            }}
+          ></div>
+
+          {/* Optional overlay for readability */}
+          <div className="absolute inset-0 bg-black/40"></div>
+
+          {/* Bottom Left Card */}
+          {/* Bottom Left Card */}
+          {/* Left Card */}
+          <div className="absolute bottom-16 left-8 w-64">
+            <div className="rounded-xl bg-black/40 backdrop-blur-md border border-purple-500/40 p-4 shadow-[0_0_20px_rgba(168,85,247,0.25)] hover:shadow-[0_0_25px_rgba(168,85,247,0.4)] transition-all">
+              <h3 className="text-lg font-semibold text-white">
+                ⚡ 99% Uptime
+              </h3>
+              <p className="text-sm text-purple-200 mt-1">
+                Zero lag. Always live.
+              </p>
+            </div>
+          </div>
+
+          {/* Right Card */}
+          <div className="absolute bottom-16 right-8 w-64">
+            <div className="rounded-xl bg-black/40 backdrop-blur-md border border-cyan-400/40 p-4 shadow-[0_0_20px_rgba(34,211,238,0.25)] hover:shadow-[0_0_25px_rgba(34,211,238,0.4)] transition-all">
+              <h3 className="text-lg font-semibold text-white">
+                💠 0.000 SOL Fee
+              </h3>
+              <p className="text-sm text-cyan-200 mt-1">
+                Batch mints. Lightning-fast.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 text-center text-white px-6 max-w-4xl mx-auto">
-        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium bg-purple-900/40 border border-purple-500/40 text-purple-200">
-          Built for Solana • Ultra-fast, gas-optimized
-        </span>
+      <style jsx>{`
+        @keyframes float {
+          0%,
+          100% {
+            transform: translateY(0px) rotate(45deg);
+          }
+          50% {
+            transform: translateY(-20px) rotate(45deg);
+          }
+        }
 
-        <h1 className="mt-6 text-5xl md:text-7xl font-extrabold leading-tight">
-          nft<span className="text-purple-400">maker</span>
-        </h1>
-        <p className="mt-3 text-lg md:text-xl text-gray-300">
-          Where wild ideas mint into reality. Design, generate, and launch NFTs — and tokens — on Solana in minutes.
-        </p>
-
-        <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="px-8 py-3 rounded-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 shadow-lg shadow-purple-900/30 border border-purple-400/30 transition" onClick={() => (window.location.href = "/create-nft")}>Start Creating</button>
-          <button className="px-8 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition" onClick={() => (window.location.href = "/mint/token")}>Mint Token</button>
-        </div>
-
-        <p className="mt-8 text-sm text-gray-400">No code. Own your art. Instant IPFS uploads and devnet/mainnet support.</p>
-
-        {/* Stats Grid */}
-        <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[{
-            label: 'NFTs Minted', value: '128,472'
-          },{
-            label: 'Creators', value: '12,934'
-          },{
-            label: 'Avg. Mint Time', value: '14s'
-          },{
-            label: 'Fees Saved', value: '83%'
-          }].map((s, i) => (
-            <div key={i} className="rounded-2xl bg-white/5 border border-white/10 px-4 py-5 text-left">
-              <div className="text-2xl font-extrabold text-white">{s.value}</div>
-              <div className="text-xs mt-1 text-gray-400">{s.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Feature Grid */}
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-5 text-left">
-          <div className="rounded-2xl p-5 bg-gradient-to-b from-purple-900/20 to-transparent border border-purple-500/20 -rotate-1 hover:rotate-0 transition">
-            <h3 className="text-white font-semibold mb-2">Canvas-first Designer</h3>
-            <p className="text-gray-400 text-sm">Draw, add shapes, drag images, and export seamlessly — optimized for fast mint flows.</p>
-          </div>
-          <div className="rounded-2xl p-5 bg-gradient-to-b from-purple-900/20 to-transparent border border-purple-500/20 rotate-1 hover:rotate-0 transition">
-            <h3 className="text-white font-semibold mb-2">One-click Minting</h3>
-            <p className="text-gray-400 text-sm">Auto-pin to IPFS, prepare metadata, and mint on Solana in a single step.</p>
-          </div>
-          <div className="rounded-2xl p-5 bg-gradient-to-b from-purple-900/20 to-transparent border border-purple-500/20 -rotate-1 hover:rotate-0 transition">
-            <h3 className="text-white font-semibold mb-2">Token Launch Ready</h3>
-            <p className="text-gray-400 text-sm">Mint SPL tokens, set supply, and go live with a consistent creator UX.</p>
-          </div>
-        </div>
-
-        {/* Large tilted highlight cards */}
-        <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="rounded-3xl p-7 bg-white/5 border border-white/10 shadow-xl -rotate-1 hover:rotate-0 transition will-change-transform">
-            <div className="text-4xl font-extrabold text-white">99.99% Uptime</div>
-            <p className="mt-2 text-gray-400">Global edge uploads and resilient IPFS pinning for uninterrupted launches.</p>
-            <div className="mt-4 flex gap-3">
-              <span className="px-3 py-1 rounded-full text-xs bg-purple-900/30 border border-purple-500/30 text-purple-200">Edge Caching</span>
-              <span className="px-3 py-1 rounded-full text-xs bg-purple-900/30 border border-purple-500/30 text-purple-200">CDN</span>
-            </div>
-          </div>
-          <div className="rounded-3xl p-7 bg-gradient-to-r from-purple-900/30 to-purple-700/20 border border-purple-500/30 shadow-xl rotate-1 hover:rotate-0 transition will-change-transform">
-            <div className="text-4xl font-extrabold text-white"><span className="text-purple-300">0.000</span> SOL Avg. Fee</div>
-            <p className="mt-2 text-gray-300">Ultra-efficient transactions with batch mints and fee optimizations.</p>
-            <div className="mt-4 flex gap-3">
-              <span className="px-3 py-1 rounded-full text-xs bg-white/10 border border-white/20 text-white/90">Batching</span>
-              <span className="px-3 py-1 rounded-full text-xs bg-white/10 border border-white/20 text-white/90">Compression</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+      `}</style>
+    </div>
   );
-}
+};
+
+export default HeroSection;

@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { CanvasElement, CanvasState, CanvasSettings, HistoryState } from '@/types/canvas';
-import { getMousePos, isPointInElement, createCanvasElement, updateCanvasElement } from '@/utils/canvasUtils';
+import { getMousePos, isPointInElement, createCanvasElement, updateCanvasElement, getResizeHandle } from '@/utils/canvasUtils';
 
 export const useCanvas = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -12,11 +12,16 @@ export const useCanvas = () => {
     isDrawing: false,
     isPanning: false,
     panOffset: { x: 0, y: 0 },
-    startPanPosition: { x: 0, y: 0 }
+    startPanPosition: { x: 0, y: 0 },
+    isDragging: false,
+    isResizing: false,
+    resizeHandle: null,
+    dragStart: { x: 0, y: 0 },
+    elementStart: null
   });
 
   const [settings, setSettings] = useState<CanvasSettings>({
-    tool: 'pencil',
+    tool: 'selection',
     color: '#000000',
     brushSize: 5,
     fontSize: 24,
@@ -28,8 +33,8 @@ export const useCanvas = () => {
   });
 
   const [history, setHistory] = useState<HistoryState>({
-    history: [],
-    historyStep: -1
+    history: [JSON.stringify([])],
+    historyStep: 0
   });
 
   const [text, setText] = useState('');
@@ -69,8 +74,16 @@ export const useCanvas = () => {
 
   const changeBackground = useCallback((newColor: string) => {
     setSettings(prev => ({ ...prev, backgroundColor: newColor }));
-    saveState();
-  }, [saveState]);
+    // Save state directly without dependency on saveState callback
+    setHistory(prev => {
+      const newHistory = prev.history.slice(0, prev.historyStep + 1);
+      newHistory.push(JSON.stringify(canvasState.elements));
+      return {
+        history: newHistory,
+        historyStep: newHistory.length - 1
+      };
+    });
+  }, [canvasState.elements]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -89,10 +102,38 @@ export const useCanvas = () => {
 
     if (settings.tool === 'selection') {
       const clickedElement = canvasState.elements.find(el => isPointInElement(pos, el));
-      setCanvasState(prev => ({
-        ...prev,
-        selectedElement: clickedElement?.id || null
-      }));
+      
+      if (clickedElement) {
+        // Check if clicking on a resize handle
+        const handle = getResizeHandle(pos, clickedElement);
+        
+        if (handle) {
+          // Start resizing
+          setCanvasState(prev => ({
+            ...prev,
+            selectedElement: clickedElement.id,
+            isResizing: true,
+            resizeHandle: handle,
+            dragStart: pos,
+            elementStart: { x1: clickedElement.x1, y1: clickedElement.y1, x2: clickedElement.x2, y2: clickedElement.y2 }
+          }));
+        } else {
+          // Start dragging
+          setCanvasState(prev => ({
+            ...prev,
+            selectedElement: clickedElement.id,
+            isDragging: true,
+            dragStart: pos,
+            elementStart: { x1: clickedElement.x1, y1: clickedElement.y1, x2: clickedElement.x2, y2: clickedElement.y2 }
+          }));
+        }
+      } else {
+        // Clicked on empty space - deselect
+        setCanvasState(prev => ({
+          ...prev,
+          selectedElement: null
+        }));
+      }
       return;
     }
 
@@ -103,6 +144,8 @@ export const useCanvas = () => {
           ...prev,
           elements: prev.elements.filter(el => el.id !== elementToErase.id)
         }));
+        // Save state after erasing for undo/redo
+        setTimeout(() => saveState(), 0);
       }
       return;
     }
@@ -120,6 +163,8 @@ export const useCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    const pos = getMousePos(e, canvas, canvasState.panOffset);
+
     if (canvasState.isPanning) {
       setCanvasState(prev => ({
         ...prev,
@@ -131,20 +176,91 @@ export const useCanvas = () => {
       return;
     }
 
+    // Handle dragging selected element
+    if (canvasState.isDragging && canvasState.selectedElement && canvasState.elementStart) {
+      const dx = pos.x - canvasState.dragStart.x;
+      const dy = pos.y - canvasState.dragStart.y;
+      
+      setCanvasState(prev => ({
+        ...prev,
+        elements: prev.elements.map(el => 
+          el.id === prev.selectedElement
+            ? {
+                ...el,
+                x1: prev.elementStart!.x1 + dx,
+                y1: prev.elementStart!.y1 + dy,
+                x2: prev.elementStart!.x2 + dx,
+                y2: prev.elementStart!.y2 + dy
+              }
+            : el
+        )
+      }));
+      return;
+    }
+
+    // Handle resizing selected element
+    if (canvasState.isResizing && canvasState.selectedElement && canvasState.elementStart && canvasState.resizeHandle) {
+      const dx = pos.x - canvasState.dragStart.x;
+      const dy = pos.y - canvasState.dragStart.y;
+      const handle = canvasState.resizeHandle;
+      
+      setCanvasState(prev => ({
+        ...prev,
+        elements: prev.elements.map(el => {
+          if (el.id !== prev.selectedElement) return el;
+          
+          let { x1, y1, x2, y2 } = prev.elementStart!;
+          
+          // Adjust coordinates based on which handle is being dragged
+          if (handle.includes('n')) y1 += dy;
+          if (handle.includes('s')) y2 += dy;
+          if (handle.includes('w')) x1 += dx;
+          if (handle.includes('e')) x2 += dx;
+          
+          return { ...el, x1, y1, x2, y2 };
+        })
+      }));
+      return;
+    }
+
     if (!canvasState.isDrawing || !canvasState.currentElement) return;
 
-    const pos = getMousePos(e, canvas, canvasState.panOffset);
     const updatedElement = updateCanvasElement(canvasState.currentElement, pos, settings.tool);
     
     setCanvasState(prev => ({
       ...prev,
       currentElement: updatedElement
     }));
-  }, [canvasState.isPanning, canvasState.isDrawing, canvasState.currentElement, canvasState.panOffset, settings.tool]);
+  }, [canvasState.isPanning, canvasState.isDrawing, canvasState.currentElement, canvasState.panOffset, settings.tool, canvasState.isDragging, canvasState.isResizing, canvasState.selectedElement, canvasState.elementStart, canvasState.dragStart, canvasState.resizeHandle]);
 
   const handleMouseUp = useCallback(() => {
     if (canvasState.isPanning) {
       setCanvasState(prev => ({ ...prev, isPanning: false }));
+      return;
+    }
+
+    // End dragging
+    if (canvasState.isDragging) {
+      setCanvasState(prev => ({
+        ...prev,
+        isDragging: false,
+        dragStart: { x: 0, y: 0 },
+        elementStart: null
+      }));
+      setTimeout(() => saveState(), 0);
+      return;
+    }
+
+    // End resizing
+    if (canvasState.isResizing) {
+      setCanvasState(prev => ({
+        ...prev,
+        isResizing: false,
+        resizeHandle: null,
+        dragStart: { x: 0, y: 0 },
+        elementStart: null
+      }));
+      setTimeout(() => saveState(), 0);
       return;
     }
 
@@ -155,8 +271,10 @@ export const useCanvas = () => {
         currentElement: null,
         isDrawing: false
       }));
+      // Save state after adding element for undo/redo
+      setTimeout(() => saveState(), 0);
     }
-  }, [canvasState.isPanning, canvasState.isDrawing, canvasState.currentElement]);
+  }, [canvasState.isPanning, canvasState.isDrawing, canvasState.currentElement, canvasState.isDragging, canvasState.isResizing, saveState]);
 
   const undo = useCallback(() => {
     if (history.historyStep > 0) {
@@ -181,13 +299,50 @@ export const useCanvas = () => {
   }, [history.historyStep, history.history]);
 
   const clearCanvas = useCallback(() => {
-    setCanvasState(prev => ({ ...prev, elements: [] }));
-    saveState();
-  }, [saveState]);
+    setCanvasState({
+      elements: [],
+      currentElement: null,
+      selectedElement: null,
+      isDrawing: false,
+      isPanning: false,
+      panOffset: { x: 0, y: 0 },
+      startPanPosition: { x: 0, y: 0 },
+      isDragging: false,
+      isResizing: false,
+      resizeHandle: null,
+      dragStart: { x: 0, y: 0 },
+      elementStart: null
+    });
+    // Save cleared state to history immediately
+    setHistory(prev => {
+      const newHistory = prev.history.slice(0, prev.historyStep + 1);
+      newHistory.push(JSON.stringify([]));
+      return {
+        history: newHistory,
+        historyStep: newHistory.length - 1
+      };
+    });
+  }, []);
 
   const updateSettings = useCallback((newSettings: Partial<CanvasSettings>) => {
     setSettings(prev => ({ ...prev, ...newSettings }));
   }, []);
+
+  const addElement = useCallback((element: CanvasElement) => {
+    setCanvasState(prev => ({
+      ...prev,
+      elements: [...prev.elements, element]
+    }));
+    setTimeout(() => saveState(), 0);
+  }, [saveState]);
+
+  const addElements = useCallback((elements: CanvasElement[]) => {
+    setCanvasState(prev => ({
+      ...prev,
+      elements: [...prev.elements, ...elements]
+    }));
+    setTimeout(() => saveState(), 0);
+  }, [saveState]);
 
   return {
     canvasRef,
@@ -204,6 +359,8 @@ export const useCanvas = () => {
     undo,
     redo,
     clearCanvas,
-    updateSettings
+    updateSettings,
+    addElement,
+    addElements
   };
 };

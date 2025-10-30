@@ -67,12 +67,15 @@ export const Canvas: React.FC<CanvasProps> = ({
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseUp}
-        className={`border-2 border-gray-700 rounded-lg shadow-2xl max-w-full max-h-full ${
-          settings.tool === 'hand' || canvasState.isPanning ? 'cursor-grab' : 'cursor-crosshair'
-        }`}
+        className={`border-2 border-gray-700 rounded-lg shadow-2xl max-w-full max-h-full`}
         style={{ 
           aspectRatio: `${settings.canvasWidth} / ${settings.canvasHeight}`,
-          cursor: canvasState.isPanning ? 'grabbing' : undefined 
+          cursor: canvasState.isPanning ? 'grabbing' 
+                  : canvasState.isDragging ? 'move' 
+                  : canvasState.isResizing ? `${canvasState.resizeHandle}-resize`
+                  : settings.tool === 'hand' ? 'grab'
+                  : settings.tool === 'selection' ? 'default'
+                  : 'crosshair'
         }}
       />
       <div className="absolute top-2 right-2 flex gap-2">

@@ -29,7 +29,9 @@ export default function NFTCanvasEditor() {
     undo,
     redo,
     clearCanvas,
-    updateSettings
+    updateSettings,
+    addElement,
+    addElements
   } = useCanvas();
 
   const {
@@ -46,23 +48,129 @@ export default function NFTCanvasEditor() {
 
   // Template and effect handlers
   const addNFTTemplate = (template: string) => {
-    console.log('addNFTTemplate called with:', template);
+    const centerX = settings.canvasWidth / 2;
+    const centerY = settings.canvasHeight / 2;
+    
+    if (template === 'pfp') {
+      // Add a circular frame for profile picture
+      const circleElement: any = {
+        id: Date.now(),
+        tool: 'ellipse',
+        x1: centerX - 150,
+        y1: centerY - 150,
+        x2: centerX + 150,
+        y2: centerY + 150,
+        points: [],
+        color: settings.color,
+        strokeWidth: 8
+      };
+      addElement(circleElement);
+    } else if (template === 'crypto-punk') {
+      // Add a pixel art grid
+      const gridElements: any[] = [];
+      const gridSize = 20;
+      const cellSize = 15;
+      const startX = centerX - (gridSize * cellSize) / 2;
+      const startY = centerY - (gridSize * cellSize) / 2;
+      const baseId = Date.now();
+      
+      for (let i = 0; i <= gridSize; i++) {
+        // Vertical lines
+        gridElements.push({
+          id: baseId + i * 100,
+          tool: 'line',
+          x1: startX + i * cellSize,
+          y1: startY,
+          x2: startX + i * cellSize,
+          y2: startY + gridSize * cellSize,
+          points: [],
+          color: '#888888',
+          strokeWidth: 1
+        });
+        // Horizontal lines
+        gridElements.push({
+          id: baseId + i * 100 + 50,
+          tool: 'line',
+          x1: startX,
+          y1: startY + i * cellSize,
+          x2: startX + gridSize * cellSize,
+          y2: startY + i * cellSize,
+          points: [],
+          color: '#888888',
+          strokeWidth: 1
+        });
+      }
+      addElements(gridElements);
+    }
   };
   
   const applyGradientBackground = () => {
-    console.log('applyGradientBackground called');
+    // Create a gradient effect using multiple rectangles
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'];
+    const randomColor1 = colors[Math.floor(Math.random() * colors.length)];
+    const randomColor2 = colors[Math.floor(Math.random() * colors.length)];
+    
+    changeBackground(randomColor1);
   };
   
   const addGlitterEffect = () => {
-    console.log('addGlitterEffect called');
+    // Add random sparkle elements
+    const sparkles: any[] = [];
+    const sparkleCount = 30;
+    const baseId = Date.now();
+    
+    for (let i = 0; i < sparkleCount; i++) {
+      const x = Math.random() * settings.canvasWidth;
+      const y = Math.random() * settings.canvasHeight;
+      const size = Math.random() * 4 + 2;
+      
+      sparkles.push({
+        id: baseId + i * 100, // Better spacing between IDs
+        tool: 'ellipse',
+        x1: x - size,
+        y1: y - size,
+        x2: x + size,
+        y2: y + size,
+        points: [],
+        color: ['#FFD700', '#FFF', '#FFFF00', '#FFA500'][Math.floor(Math.random() * 4)],
+        strokeWidth: 1
+      });
+    }
+    addElements(sparkles);
   };
   
   const addEmojiSticker = (emoji: string) => {
-    console.log('addEmojiSticker called with:', emoji);
+    // Add emoji as text element at center
+    const centerX = settings.canvasWidth / 2;
+    const centerY = settings.canvasHeight / 2;
+    
+    const textElement: any = {
+      id: Date.now(),
+      tool: 'text',
+      x1: centerX - 40,
+      y1: centerY,
+      x2: centerX + 40,
+      y2: centerY + 40,
+      points: [],
+      color: settings.color,
+      strokeWidth: 0,
+      text: emoji
+    };
+    addElement(textElement);
   };
   
   const applyFilter = (filterType: string) => {
-    console.log('applyFilter called with:', filterType);
+    // Apply visual filter by adjusting background or adding overlay
+    if (filterType === 'grayscale') {
+      changeBackground('#808080');
+    } else if (filterType === 'invert') {
+      // Toggle between light and dark
+      const isDark = settings.backgroundColor === '#000000' || settings.backgroundColor === '#ffffff';
+      changeBackground(settings.backgroundColor === '#000000' ? '#ffffff' : '#000000');
+    } else if (filterType === 'neon') {
+      changeBackground('#0a0a0a');
+      updateSettings({ color: '#00ff00' });
+    }
   };
 
   // Keyboard: toggle Focus Mode with "f"
@@ -85,8 +193,7 @@ export default function NFTCanvasEditor() {
 
   const handleUploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     uploadImage(e, settings.canvasWidth, settings.canvasHeight, (element) => {
-      // Add element to canvas state
-      // This would need to be implemented in the useCanvas hook
+      addElement(element);
     }, saveState);
   };
 
@@ -115,7 +222,7 @@ export default function NFTCanvasEditor() {
         onApplyFilter={applyFilter}
       />
 
-      <main className="relative z-10 p-4 flex flex-col h-screen">
+      <main className="relative z-10 p-4 flex flex-col h-screen pb-28">
         <CanvasHeader
           isSidebarOpen={!focusMode && isSidebarOpen}
           onToggleSidebar={() => { setIsSidebarOpen(!isSidebarOpen); if (!isSidebarOpen) setFocusMode(false); }}
@@ -127,7 +234,7 @@ export default function NFTCanvasEditor() {
           error={error}
         />
 
-            <div className={`flex-1 flex items-center justify-center ${focusMode ? 'pt-2' : ''}`}>
+        <div className="flex-1 flex items-center justify-center">
           <Canvas
             canvasRef={canvasRef}
             canvasState={canvasState}
@@ -148,6 +255,7 @@ export default function NFTCanvasEditor() {
         tool={settings.tool}
         onToolChange={(tool) => updateSettings({ tool })}
         showHint={!focusMode}
+        onImageUpload={handleUploadImage}
       />
 
       <MintModal

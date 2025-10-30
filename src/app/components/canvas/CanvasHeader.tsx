@@ -36,10 +36,6 @@ export const CanvasHeader: React.FC<CanvasHeaderProps> = ({
 
       <div className="flex justify-between items-center mb-4">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-white bg-gradient-to-r from-purple-400 to-purple-200 bg-clip-text text-transparent">
-            nftmaker
-          </h1>
-          <p className="text-gray-400 text-sm">Where your wildest NFT dreams come alive</p>
         </div>
         <div className="flex gap-2">
           <button
