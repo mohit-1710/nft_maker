@@ -1,18 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { useSearchParams } from 'next/navigation';
 import AppBar from '../../components/AppBar';
 import NftMinter from '../../components/NftMinter';
 
+function NftMinterWrapper() {
+    const searchParams = useSearchParams();
+    const imageUrl = searchParams.get('imageUrl');
+    
+    return <NftMinter preloadedImageUrl={imageUrl} />;
+}
+
 export default function NftMintPage() {
     const [balance, setBalance] = useState<number>(0);
     const { connection } = useConnection();
     const { publicKey } = useWallet();
-    const searchParams = useSearchParams();
-    const imageUrl = searchParams.get('imageUrl');
 
     useEffect(() => {
         if (publicKey) {
@@ -61,7 +66,17 @@ export default function NftMintPage() {
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-lg blur opacity-20"></div>
 
                     {/* Card */}
-                        <NftMinter preloadedImageUrl={imageUrl} />
+                    <Suspense fallback={
+                        <div className="rounded-3xl p-8 backdrop-blur-xl flex items-center justify-center" style={{
+                            background: 'rgba(10, 10, 15, 0.95)',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            minHeight: '400px'
+                        }}>
+                            <div className="text-purple-400">Loading...</div>
+                        </div>
+                    }>
+                        <NftMinterWrapper />
+                    </Suspense>
 
                 </div>
             </div>

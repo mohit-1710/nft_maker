@@ -65,7 +65,7 @@ const NftMinter = ({ preloadedImageUrl }: { preloadedImageUrl?: string | null })
             }).sendAndConfirm(umi);
 
             // Convert signature from Uint8Array to base58 format for Solana Explorer
-            const signatureBase58 = base58.serialize(signature);
+            const signatureBase58 = base58.deserialize(signature)[0];
             setSignature(signatureBase58);
 
         } catch (err) {
