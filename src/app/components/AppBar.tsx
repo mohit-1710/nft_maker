@@ -1,11 +1,14 @@
 "use client";
 
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
 const AppBar = () => {
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
+    setMounted(true);
     // Add class to Solana wallet adapter button once it mounts
     const btn = document.querySelector(".wallet-adapter-button");
     if (btn) btn.classList.add("button-neomorphic-wallet");
@@ -43,7 +46,11 @@ const AppBar = () => {
         {/* Right Section - 40% (Empty for image) */}
         <div className="w-[40%] px-12 lg:px-16 xl:px-20 py-6 flex items-center justify-end">
           <div>
-            <WalletMultiButton />
+            {mounted ? (
+              <WalletMultiButton />
+            ) : (
+              <div className="h-[42px] w-[150px]" />
+            )}
           </div>
         </div>
       </div>

@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { mplTokenMetadata, createNft } from '@metaplex-foundation/mpl-token-metadata';
 import { walletAdapterIdentity } from '@metaplex-foundation/umi-signer-wallet-adapters';
 import { generateSigner, percentAmount } from '@metaplex-foundation/umi';
+import { base58 } from '@metaplex-foundation/umi/serializers';
 import axios from 'axios';
 import Dropzone from './Dropzone';
 
@@ -18,6 +19,16 @@ const NftMinter = ({ preloadedImageUrl }: { preloadedImageUrl?: string | null })
     const [isLoading, setIsLoading] = useState(false);
     const [signature, setSignature] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+    useEffect(() => {
+        if (preloadedImageUrl) {
+            setShowSuccessMessage(true);
+            // Auto-hide success message after 5 seconds
+            const timer = setTimeout(() => setShowSuccessMessage(false), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [preloadedImageUrl]);
 
     const handleMint = async () => {
         if (!wallet.publicKey || !nftImageUrl) {
@@ -53,7 +64,9 @@ const NftMinter = ({ preloadedImageUrl }: { preloadedImageUrl?: string | null })
                 sellerFeeBasisPoints: percentAmount(5.5), // 5.5%
             }).sendAndConfirm(umi);
 
-            setSignature(signature.toString());
+            // Convert signature from Uint8Array to base58 format for Solana Explorer
+            const signatureBase58 = base58.serialize(signature);
+            setSignature(signatureBase58);
 
         } catch (err) {
             console.error(err);
@@ -92,6 +105,51 @@ const NftMinter = ({ preloadedImageUrl }: { preloadedImageUrl?: string | null })
     </div>
   </div>
 
+  {/* Success Message for Uploaded Design */}
+  {showSuccessMessage && preloadedImageUrl && (
+    <div
+      className="rounded-lg p-4 mb-6 border border-green-500/30 animate-fadeIn"
+      style={{
+        background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.15) 100%)',
+        boxShadow: '0 4px 20px rgba(34, 197, 94, 0.2)',
+      }}
+    >
+      <div className="flex items-start gap-3">
+        <div className="flex-shrink-0">
+          <svg
+            className="w-6 h-6 text-green-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+        <div className="flex-1">
+          <h3 className="text-green-400 font-semibold mb-1">
+            🎨 Your Design is Ready!
+          </h3>
+          <p className="text-gray-300 text-sm">
+            Your NFT artwork has been successfully uploaded to IPFS. Now just add a name and description to mint your NFT on the Solana blockchain!
+          </p>
+        </div>
+        <button
+          onClick={() => setShowSuccessMessage(false)}
+          className="flex-shrink-0 text-gray-400 hover:text-white transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  )}
+
   <div className="space-y-6">
     {/* NFT Name */}
     <div className="space-y-2">
@@ -128,20 +186,48 @@ const NftMinter = ({ preloadedImageUrl }: { preloadedImageUrl?: string | null })
     {/* NFT Image */}
     <div className="space-y-2">
       <label className="block text-sm font-medium text-gray-300">NFT Image</label>
-      <Dropzone onUpload={setNftImageUrl} />
-
-      {nftImageUrl && (
-        <p className="text-sm text-gray-400 mt-2">
-          Image uploaded:{' '}
-          <a
-            href={nftImageUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-purple-400 hover:text-purple-300 underline"
-          >
-            {nftImageUrl}
-          </a>
-        </p>
+      
+      {nftImageUrl && preloadedImageUrl ? (
+        <div className="space-y-3">
+          <div className="relative rounded-lg overflow-hidden border border-green-500/30" style={{ background: '#1a1a24' }}>
+            <img
+              src={nftImageUrl}
+              alt="NFT Preview"
+              className="w-full h-64 object-contain"
+            />
+            <div className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-semibold bg-green-500/20 text-green-400 border border-green-500/30">
+              ✓ Uploaded
+            </div>
+          </div>
+          <p className="text-sm text-gray-400">
+            Your design is ready!{' '}
+            <a
+              href={nftImageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-400 hover:text-purple-300 underline"
+            >
+              View on IPFS
+            </a>
+          </p>
+        </div>
+      ) : (
+        <>
+          <Dropzone onUpload={setNftImageUrl} />
+          {nftImageUrl && (
+            <p className="text-sm text-gray-400 mt-2">
+              Image uploaded:{' '}
+              <a
+                href={nftImageUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-purple-400 hover:text-purple-300 underline"
+              >
+                {nftImageUrl}
+              </a>
+            </p>
+          )}
+        </>
       )}
     </div>
 
